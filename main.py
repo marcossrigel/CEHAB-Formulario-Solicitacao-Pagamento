@@ -55,9 +55,10 @@ def mensagem(nome, linha):
         f'Empresa: {linha.get("Empresa")}%0A'
         f'Número do Contrato: {linha.get("Nº Contrato")}%0A'
         f'BM nº: {linha.get("BM nº ")}%0A'
-        f"Valor: {f'{linha.get('Valor'):,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')} %0A"
+        f"Valor: {str(linha.get('Valor'))} %0A"
         f'Fonte de Recursos do Pagamento: {linha.get("Fonte de Recursos do Pagamento")}%0A'
         f'Número do SEI: {linha.get("Nº SEI")}'
+        
     )
 
 def enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index):
@@ -65,8 +66,8 @@ def enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index):
     url = f'https://web.whatsapp.com/send?phone={telefone}&text={texto}'
     webbrowser.open(url)
     time.sleep(5)
-    pyautogui.press('enter')  
-    pyautogui.hotkey('ctrl', 'w')
+    #pyautogui.press('enter')  
+    #pyautogui.hotkey('ctrl', 'w')
     planilha.update_cell(i, coluna_status_index, 'Enviado')
     time.sleep(3)
 
