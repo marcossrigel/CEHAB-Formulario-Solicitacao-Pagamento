@@ -14,6 +14,7 @@ def conectar_google_sheets(caminho_credencial_temp):
     creds = ServiceAccountCredentials.from_json_keyfile_name(caminho_credencial_temp, scopes)
     return gspread.authorize(creds)
 
+
 def enviar_mensagens(planilha):
     dados = planilha.get_all_records()
     cabecalho = planilha.row_values(1)
@@ -22,11 +23,14 @@ def enviar_mensagens(planilha):
     for i, linha in enumerate(dados, start=2):
         if linha.get('Status') == 'Liberado':
             if linha.get('Origem da demanda / Setor') == 'DOE - Diretoria de Obras Estratégicas':
+
                 nome = 'Conceição'
                 telefone = '+5581991492389'
+                
             if linha.get('Origem da demanda / Setor') == 'DOB - Diretoria de Obras':
                 nome = 'Ana Paula'
                 telefone = '+5581998772704'
+
             if linha.get('Origem da demanda / Setor') == 'DPH - Diretoria de Programas Habitacionais':
                 if (linha.get('Empresa') == 'Maia Melo Engenharia') & (linha.get('Nº Contrato') == '114/2022'):
                     nome = 'Mariana'
@@ -35,25 +39,44 @@ def enviar_mensagens(planilha):
                      nome = 'Bianca'
                      telefone = '+5581995384148'
 
-            mensagem = (
-                        f'Olá, {nome}! Você já pode solicitar a disponibilidade financeira para pagamento do(s) contrato(s) abaixo: %0A %0A'
+            mensagem = (f'Olá, {nome}! Você já pode solicitar a disponibilidade financeira para pagamento do(s) contrato(s) abaixo: %0A %0A'
                         f'Objeto do Contrato: {linha.get("Objeto do contrato")}%0A%0A'
                         f'Local da obra ou serviço: {linha.get("Local da obra ou serviço")}%0A'
                         f'Empresa: {linha.get("Empresa")}%0A'
                         f'Número do Contrato: {linha.get("Nº Contrato")}%0A'
                         f'BM nº: {linha.get("BM nº ")}%0A'
-                        f'Valor: {linha.get("Valor")}%0A'
+                        f"Valor: {f'{linha.get('Valor'):,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')} %0A"
                         f'Fonte de Recursos do Pagamento: {linha.get("Fonte de Recursos do Pagamento")}%0A'
                         f'Número do SEI: {linha.get("Nº SEI")}'
-                    )
-
+            )
+            
             webbrowser.open(f'https://web.whatsapp.com/send?phone={telefone}&text={mensagem}')
-
-            time.sleep(10)
-            pyautogui.press('enter')
-            pyautogui.hotkey('ctrl', 'w')
-            planilha.update_cell(i, coluna_status_index, 'Enviado')
             time.sleep(5)
+            #pyautogui.press('enter')
+            #pyautogui.hotkey('ctrl', 'w')
+            planilha.update_cell(i, coluna_status_index, 'Enviado')
+            time.sleep(3)
+
+            if (linha.get('Endereço de e-mail') == 'gace@cehab.pe.gov.br' or linha.get('Endereço de e-mail') == 'gace@pe.gov.br'):
+                nome = 'Ana Alice GAC'
+                telefone = '+5581999792765'
+                mensagem = (f'Olá, {nome}! Você já pode solicitar a disponibilidade financeira para pagamento do(s) contrato(s) abaixo: %0A %0A'
+                        f'Objeto do Contrato: {linha.get("Objeto do contrato")}%0A%0A'
+                        f'Local da obra ou serviço: {linha.get("Local da obra ou serviço")}%0A'
+                        f'Empresa: {linha.get("Empresa")}%0A'
+                        f'Número do Contrato: {linha.get("Nº Contrato")}%0A'
+                        f'BM nº: {linha.get("BM nº ")}%0A'
+                        f"Valor: {f'{linha.get('Valor'):,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.')} %0A"
+                        f'Fonte de Recursos do Pagamento: {linha.get("Fonte de Recursos do Pagamento")}%0A'
+                        f'Número do SEI: {linha.get("Nº SEI")}'
+                )
+            
+                webbrowser.open(f'https://web.whatsapp.com/send?phone={telefone}&text={mensagem}')
+                time.sleep(5)
+                #pyautogui.press('enter')
+                #pyautogui.hotkey('ctrl', 'w')
+                planilha.update_cell(i, coluna_status_index, 'Enviado')
+                time.sleep(3)
 
           
 def descriptografar_credencial(caminho_cripto, caminho_temp):
@@ -65,7 +88,6 @@ def descriptografar_credencial(caminho_cripto, caminho_temp):
         arquivo_temp.write(descriptografado)
 
     return caminho_temp
-
 
 def main():
     caminho_cripto = 'formulariosolicitacaopagamento-f683a63c3e41.json'
