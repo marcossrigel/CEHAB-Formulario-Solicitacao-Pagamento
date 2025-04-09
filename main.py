@@ -14,7 +14,6 @@ def conectar_google_sheets(caminho_credencial_temp):
     creds = ServiceAccountCredentials.from_json_keyfile_name(caminho_credencial_temp, scopes)
     return gspread.authorize(creds)
 
-
 def enviar_mensagens(planilha):
     dados = planilha.get_all_records()
     cabecalho = planilha.row_values(1)
@@ -26,26 +25,26 @@ def enviar_mensagens(planilha):
                 nome = 'Conceição'
                 telefone = '+5581991492389'
                 enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-
+                
             if linha.get('Origem da demanda / Setor') == 'DOB - Diretoria de Obras':
                 nome = 'Ana Paula'
                 telefone = '+5581998772704'
                 enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-
+                
                 nome = 'Ana Alice GAC'
                 telefone = '+5581999792765'
                 enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-
+                
             if linha.get('Origem da demanda / Setor') == 'DPH - Diretoria de Programas Habitacionais':
                 if (linha.get('Empresa') == 'Maia Melo Engenharia') & (linha.get('Nº Contrato') == '114/2022'):
                     nome = 'Mariana'
                     telefone = '+5581995026464'
                     enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
+                    
                 else:
                      nome = 'Bianca'
                      telefone = '+5581995384148'
-                     enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-        
+                     enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)    
 
 def mensagem(nome, linha):
     return (
@@ -55,23 +54,20 @@ def mensagem(nome, linha):
         f'Empresa: {linha.get("Empresa")}%0A'
         f'Número do Contrato: {linha.get("Nº Contrato")}%0A'
         f'BM nº: {linha.get("BM nº ")}%0A'
-        f"Valor: {str(linha.get('Valor'))} %0A"
+        f'Valor: {linha.get('Valor')}%0A'
         f'Fonte de Recursos do Pagamento: {linha.get("Fonte de Recursos do Pagamento")}%0A'
         f'Número do SEI: {linha.get("Nº SEI")}'
-        
     )
 
 def enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index):
     texto = mensagem(nome, linha)
-    url = f'https://web.whatsapp.com/send?phone={telefone}&text={texto}'
-    webbrowser.open(url)
+    webbrowser.open(f'https://web.whatsapp.com/send?phone={telefone}&text={texto}')
     time.sleep(5)
-    #pyautogui.press('enter')  
-    #pyautogui.hotkey('ctrl', 'w')
-    planilha.update_cell(i, coluna_status_index, 'Enviado')
+    pyautogui.press('enter')
     time.sleep(3)
-
-          
+    pyautogui.hotkey('ctrl', 'w')
+    planilha.update_cell(i, coluna_status_index, 'Enviado')
+ 
 def descriptografar_credencial(caminho_cripto, caminho_temp):
     fernet = Fernet('Cv_tn1OWIWHUVQ3YW6jy2SUAdZWE-Br2ws05_jfs1o0=')
     with open(caminho_cripto, 'rb') as arquivo_criptografado:
