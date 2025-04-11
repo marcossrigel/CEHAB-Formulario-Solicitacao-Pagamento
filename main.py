@@ -62,7 +62,7 @@ def mensagem(nome, linha):
 def enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index):
     texto = mensagem(nome, linha)
     webbrowser.open(f'https://web.whatsapp.com/send?phone={telefone}&text={texto}')
-    time.sleep(5)
+    time.sleep(3)
     pyautogui.press('enter')
     time.sleep(3)
     pyautogui.hotkey('ctrl', 'w')
