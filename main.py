@@ -69,7 +69,7 @@ def enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index):
     planilha.update_cell(i, coluna_status_index, 'Enviado')
  
 def descriptografar_credencial(caminho_cripto, caminho_temp):
-    fernet = Fernet('Cv_tn1OWIWHUVQ3YW6jy2SUAdZWE-Br2ws05_jfs1o0=')
+    fernet = Fernet('aLnLEwboui6Lfa3NWgYLk0_suDi53AAXZBFsh_o56Pg=')
     with open(caminho_cripto, 'rb') as arquivo_criptografado:
         criptografado = arquivo_criptografado.read()
     descriptografado = fernet.decrypt(criptografado)
