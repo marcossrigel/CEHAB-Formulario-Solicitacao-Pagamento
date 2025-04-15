@@ -14,37 +14,61 @@ def conectar_google_sheets(caminho_credencial_temp):
     creds = ServiceAccountCredentials.from_json_keyfile_name(caminho_credencial_temp, scopes)
     return gspread.authorize(creds)
 
+
 def enviar_mensagens(planilha):
     dados = planilha.get_all_records()
     cabecalho = planilha.row_values(1)
     coluna_status_index = cabecalho.index('Status') + 1
+    grupos = {}
 
     for i, linha in enumerate(dados, start=2):
-        if linha.get('Status') == 'Liberado':
-            if linha.get('Origem da demanda / Setor') == 'DOE - Diretoria de Obras Estratégicas':
-                nome = 'Conceição'
-                telefone = '+5581991492389'
-                enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-                
-            if linha.get('Origem da demanda / Setor') == 'DOB - Diretoria de Obras':
-                nome = 'Ana Paula'
-                telefone = '+5581998772704'
-                enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-                
-                nome = 'Ana Alice GAC'
-                telefone = '+5581999792765'
-                enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-                
-            if linha.get('Origem da demanda / Setor') == 'DPH - Diretoria de Programas Habitacionais':
-                if (linha.get('Empresa') == 'Maia Melo Engenharia') & (linha.get('Nº Contrato') == '114/2022'):
-                    nome = 'Mariana'
-                    telefone = '+5581995026464'
-                    enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)
-                    
-                else:
-                     nome = 'Bianca'
-                     telefone = '+5581995384148'
-                     enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index)    
+        if linha.get('Status') != 'Liberado':
+            continue
+
+        setor = linha.get('Origem da demanda / Setor', '').strip()
+        contrato = linha.get('Nº Contrato', '').strip()
+        empresa = linha.get('Empresa', '').strip()
+
+        if setor == 'DOE - Diretoria de Obras Estratégicas':
+            chave = ('Martins', '+558199004886')
+        
+        elif setor == 'DOB - Diretoria de Obras':
+            chave = ('Matheus', '+558184459945')
+
+        elif setor == 'DPH - Diretoria de Programas Habitacionais':
+            if empresa == 'Maia Melo Engenharia' and contrato == '114/2022':
+                chave = ('BD', '+518199025620')
+            else:
+                chave = ('Gabi', '+553499610569')
+        else:
+            continue
+        grupos.setdefault(chave, []).append((linha, i))
+
+    for (nome, telefone), itens in grupos.items():
+        texto = (
+            f'Olá, {nome}! Você já pode solicitar a disponibilidade financeira para pagamento do(s) contrato(s) abaixo: %0A %0A'
+        )
+
+        for linha, _ in itens:
+            texto += (
+                f'Objeto do Contrato: {linha.get("Objeto do contrato")}%0A'
+                f'Local da obra ou serviço: {linha.get("Local da obra ou serviço")}%0A'
+                f'Empresa: {linha.get("Empresa")}%0A'
+                f'Número do Contrato: {linha.get("Nº Contrato")}%0A'
+                f'BM nº: {linha.get("BM nº ")}%0A'
+                f'Valor: {linha.get("Valor")}%0A'
+                f'Fonte de Recursos do Pagamento: {linha.get("Fonte de Recursos do Pagamento")}%0A'
+                f'Número do SEI: {linha.get("Nº SEI")}%0A'
+                f'-----%0A%0A'
+            )
+
+        webbrowser.open(f'https://web.whatsapp.com/send?phone={telefone}&text={texto}')
+        time.sleep(8)
+        pyautogui.hotkey('ctrl', 'w')
+
+        for _, linha_index in itens:
+            planilha.update_cell(linha_index, coluna_status_index, 'Enviado')
+
 
 def mensagem(nome, linha):
     return (
@@ -59,15 +83,17 @@ def mensagem(nome, linha):
         f'Número do SEI: {linha.get("Nº SEI")}'
     )
 
+
 def enviar_mensagem(nome, linha, telefone, planilha, i, coluna_status_index):
     texto = mensagem(nome, linha)
     webbrowser.open(f'https://web.whatsapp.com/send?phone={telefone}&text={texto}')
-    time.sleep(6)
-    pyautogui.press('Enter')
-    time.sleep(3)
+    time.sleep(7)
+    #pyautogui.press('Enter')
+    #time.sleep(3)
     pyautogui.hotkey('ctrl', 'w')
     planilha.update_cell(i, coluna_status_index, 'Enviado')
- 
+
+
 def descriptografar_credencial(caminho_cripto, caminho_temp):
     fernet = Fernet('aLnLEwboui6Lfa3NWgYLk0_suDi53AAXZBFsh_o56Pg=')
     with open(caminho_cripto, 'rb') as arquivo_criptografado:
